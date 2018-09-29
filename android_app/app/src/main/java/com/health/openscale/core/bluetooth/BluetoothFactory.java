@@ -81,6 +81,9 @@ public class BluetoothFactory {
         if (deviceName.startsWith("YUNMAI-ISSE")) {
             return new BluetoothYunmaiSE_Mini(context, false);
         }
+        if (deviceName.startsWith("QN-Scale")) {
+            return new BluetoothQNScale(context);
+        }
         return null;
     }
 }

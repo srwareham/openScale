@@ -241,6 +241,13 @@ public class Converters {
         return value;
     }
 
+    public static byte[] toUnsignedInt16Le(int value) {
+        byte[] data = new byte[2];
+        data[1] = (byte) ((value >> 8) & 0xFF);
+        data[0] = (byte) (value & 0xFF);
+        return data;
+    }
+
     public static int fromUnsignedInt16Be(byte[] data, int offset) {
         int value = (data[offset] & 0xFF) << 8;
         value += data[offset + 1] & 0xFF;
