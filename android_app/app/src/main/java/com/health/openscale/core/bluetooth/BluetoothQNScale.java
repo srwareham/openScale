@@ -60,10 +60,23 @@ public class BluetoothQNScale extends BluetoothCommunication {
     private final UUID CUSTOM4_MEASUREMENT_CHARACTERISTIC = UUID.fromString("0000ffe4-0000-1000-8000-00805f9b34fb"); // write-only
     // Never used
     private final UUID CUSTOM5_MEASUREMENT_CHARACTERISTIC = UUID.fromString("0000ffe5-0000-1000-8000-00805f9b34fb"); // write-only
-
-
-
     /////////////
+
+    private List<float> weightReadings = new ArrayList<float>;
+    /** API
+    connectDevice(device, "userId", 170, 1, birthday, new new QNBleCallback(){
+    void onConnectStart(QNBleDevice bleDevice);
+    void onConnected(QNBleDevice bleDevice);
+     void onDisconnected(QNBleDevice bleDevice,int status);
+     void onUnsteadyWeight(QNBleDevice bleDevice, float weight);
+     void onReceivedData(QNBleDevice bleDevice, QNData data);
+     void onReceivedStoreData(QNBleDevice bleDevice, List<QNData> datas);
+     void onLowPower();
+     **/
+
+
+
+
 
     private ScaleMeasurement btScaleMeasurement;
 
@@ -147,15 +160,32 @@ public class BluetoothQNScale extends BluetoothCommunication {
         int firstByte = custom1Data[0] & 0xFF;
         int secondByte = custom1Data[1] & 0xFF;
         int thirdByte = custom1Data[2] & 0xFF;
+        Timber.e("First byte %d", firstByte);
+        Timber.e("Second byte %d", secondByte);
+        Timber.e("Third byte %d", thirdByte);
         //int fourthByte = custom1Data[3] & 0xFF;
         //int fifthByte = custom1Data[4] & 0xFF;
 
         // If this is a weight byte
         if (firstByte == 0x10 && secondByte == 0x0b && thirdByte == 0x15){
             byte[] weightBytes = new byte[]{custom1Data[3], custom1Data[4]};
-            float weight = Converters.fromUnsignedInt16Le(weightBytes, 0) / 100.0f;
+            int rawWeight = ((weightBytes[0] & 0xff) <<8 | weightBytes[1] & 0xff);
+            float weight = rawWeight / 100.0f;
+            //float weight = Converters.fromUnsignedInt16Le(weightBytes, 0) / 100.0f;
+            int weightByteOne = custom1Data[3] & 0xFF;
+            int weightByteTwo = custom1Data[4] & 0xFF;
+            Timber.e("Weight byte 1 %d", weightByteOne);
+            Timber.e("Weight byte 2 %d", weightByteTwo);
+            Timber.e("Raw Weight: %d", rawWeight);
+            weightReadings.append(weight);
             btScaleMeasurement.setWeight(weight);
+            //setBtMachineState(BT_MACHINE_STATE.BT_CLEANUP_STATE)
+            addScaleData(btScaleMeasurement);
         }
+    }
+
+    private boolean shouldSetWeight(List<float> weights){
+
     }
 
 }
